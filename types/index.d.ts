@@ -55,3 +55,33 @@ declare type UpdateAppointmentParams = {
   appointment: Appointment;
   type: string;
 };
+
+declare type RegisterOrganizationParams = {
+  organization: string;
+  socialMedia: string;
+  contact: string;
+  responsible: string;
+  logo: FormData | undefined;
+};
+
+declare type CreateTrashParams = {
+  ci: string;
+  description: string;
+  address: string;
+  contact: string;
+  city: string;
+};
+declare type CreateProjectParams = {
+  projectName: string;
+  orgName: string;
+  ODS: string;
+  contact: string;
+  responsible: string;
+};
+declare type CreateOrganizationParams = {
+  ci: string;
+  description: string;
+  address: string;
+  contact: string;
+  city: string;
+};

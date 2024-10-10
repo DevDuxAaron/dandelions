@@ -4,6 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 import * as React from "react"
 import Image from "next/image"
 
@@ -32,11 +35,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { createProject } from "@/lib/actions/project.actions";
 
 const FormSchema = z.object({
-  id: z.string().min(2, {
-    message: "",
-  }),
   projectName: z.string().min(2, {
     message: "Por favor introduce un CI válido",
   }),
@@ -75,27 +76,48 @@ const options = [
 ]
 
 export function ProjectForm() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      id: "",
       projectName: "",
       orgName: "",
-      ODS: "ODS1",
-      contact: "77667766",
-      responsible: "Alan Richard",
+      ODS: "",
+      contact: "",
+      responsible: "",
     },
   })
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    // toast({
-    //   title: "You submitted the following values:",
-    //   description: (
-    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-    //       <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-    //     </pre>
-    //   ),
-    // })
+  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+    console.log("Trying onSubmit")
+    setIsLoading(true);
+
+    try {
+      const project = {
+        projectName: data.projectName,
+        orgName: data.orgName,
+        ODS: data.ODS,
+        contact: data.contact,
+        responsible: data.responsible,
+      };
+      // const newTrash = await createTrash(trash);
+      let newProject = await createProject(project);
+      // while(!newTrash) {
+      //   newTrash = await createTrash(trash);
+      // }
+
+      if (newProject) {
+        router.push(`/`);
+      } else {
+        console.log("Hubo un error en al crear project");
+      }
+    } catch (error) {
+      console.log("Hubo un error en onSubmit");
+      console.log(error);
+    }
+    setIsLoading(false);
   }
 
   return (
@@ -199,8 +221,26 @@ export function ProjectForm() {
                 </FormItem>
               )}
             />
-            <div className="flex justify-center">
+            {/* <div className="flex justify-center">
               <Button variant="lime" type="submit">Enviar</Button>
+            </div> */}
+            <div className="flex justify-center">
+              <Button disabled={isLoading} variant="lime" type="submit">
+                {isLoading ? (
+                  <div className="flex items-center gap-4">
+                    <Image
+                      src="/assets/icons/loader.svg"
+                      alt="loader"
+                      width={24}
+                      height={24}
+                      className="animate-spin"
+                    />
+                    Cargando...
+                  </div>
+                ) : (
+                  <>Enviar</>
+                )}
+              </Button>
             </div>
           </form>
         </Form>
